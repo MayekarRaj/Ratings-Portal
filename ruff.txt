@@ -1,0 +1,24 @@
+  // const { register, handleSubmit, error } = useForm(); 
+
+  // const onSubmit = (data) => {
+  //   console.log(data);
+  // }
+
+  // return (
+  //   <form onSubmit={handleSubmit(onSubmit)}>
+
+  //     <div>
+  //       <label>Choose file:</label>
+  //       <input type="file" name="picture" ref={register({ required: true })} />
+  //       {error.exampleRequired && <span>This field is required</span>}
+  //       <button>Submit</button>
+  //     </div>
+
+  //   </form>
+  // );
+
+	for selective rows
+        const workbook = XLSX.read(data, {sheetRows: 2});
+
+
+w-40 mr-8 ml-11 mt-8 mb-8
