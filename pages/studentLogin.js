@@ -35,6 +35,7 @@ export default function login() {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 console.log(errorCode, errorMessage)
+                alert('User not found')
             });
         e.preventDefault();
     }

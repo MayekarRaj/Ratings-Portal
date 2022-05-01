@@ -5,7 +5,7 @@ import {  firestoredb } from '../firebase'
 import { doc, onSnapshot} from "firebase/firestore"
 
 export default function TeacherRating() {
-
+    
     const [teachersData, setTeachersData] = useState(false)
     const [teachersList, setTeachersList] = useState([])
     
@@ -17,9 +17,9 @@ export default function TeacherRating() {
 
     useEffect( () => {
         const docRef = doc(firestoredb, 'students', window.localStorage.getItem('uid'))
-        console.log(teachersList)
+        // console.log(teachersList)
         onSnapshot(docRef, d => {
-            console.log(d.data().ratedTeachersList)
+            // console.log(d.data().ratedTeachersList)
             
             setTeachersList(d.data().ratedTeachersList)
             // console.log(d.data().ratedTeachersList)
@@ -38,11 +38,11 @@ export default function TeacherRating() {
     }, [])
 
     useEffect(() => {
-        console.log(teachersList)
+        // console.log(teachersList)
         if (teachersData && teachersList) {
 
             setTeachersData(teachersData.filter(t => !teachersList.includes(t.id)))
-            console.log(teachersData)
+            // console.log(teachersData)
         }
     }, [teachersList, teachersData])
 
@@ -57,7 +57,7 @@ export default function TeacherRating() {
                     <div className="h-1/3 pl-20 ">
                         <p className="text-4xl ">{t.name}</p>
                     </div>
-                    <div className="h-1/3 pr-20">
+                    <div className="h-1/3 pr-20 -translate-x-14">
                         <p className="text-sm text-center">{t.subject}</p>
                     </div>
                     <StarRatings teachersList={teachersList} teacherId={t.id} />

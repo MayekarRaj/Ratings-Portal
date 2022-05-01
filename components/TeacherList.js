@@ -2,8 +2,6 @@ import React, {useState} from 'react'
 import StudentDetails from './StudentDetails'
 import Modal from '../components/Modal';
 
-//cancelled
-
 export default function TeacherList({f, isUpload}) {
   const [showModal, setShowModal] = useState(false)
 

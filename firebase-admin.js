@@ -21,6 +21,9 @@ if (!admin.apps.length) {
     
   });
 }
-const firestore = admin.firestore();
-export {firestore}
+
+const firestore = admin.firestore()
+// firestore.settings({ignoreUndefinedProperties: true});
+
+export { firestore }
 export default adminApp

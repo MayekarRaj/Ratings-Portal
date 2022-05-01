@@ -1,25 +1,25 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import Head from 'next/head'
 import TeacherRating from '../components/TeacherRating'
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import {useRouter} from 'next/router'
+import { useRouter } from 'next/router'
 import app from "../firebase"
 
-export default  function teacherRatings() {
+export default function teacherRatings() {
 
     const [user, setUser] = useState(false);
     const router = useRouter()
 
     const auth = getAuth(app);
     onAuthStateChanged(auth, (user) => {
-      if (!user) {
-            () => router.push("/studentLogin")
-            
-      } else {
-          setUser(auth.currentUser)
-        //   console.log("Display name -> " + auth.currentUser.displayName)
-        console.log(window.localStorage.getItem("year"))
-      }
+        if (!user) {
+            router.push("/studentLogin")
+
+        } else {
+            setUser(auth.currentUser)
+            //   console.log("Display name -> " + auth.currentUser.displayName)
+            // console.log(window.localStorage.getItem("year"))
+        }
     });
 
     // const teachers = await fetch(`/api/teacherlist?year=${year}`).then((res) => res.json()).then((data) => setTeachersData(data))
@@ -36,7 +36,7 @@ export default  function teacherRatings() {
                     <button onClick={() => {
                         auth.signOut()
                         router.push("/studentLogin")
-                        }} className='bg-button text-white mx-8 p-2 rounded'>Log Out</button>
+                    }} className='bg-button text-white mx-8 p-2 rounded'>Log Out</button>
                 </div>
             </div>
             <div className='w-5/6  p-8'>
@@ -48,14 +48,17 @@ export default  function teacherRatings() {
                         <option>Fourth Year</option>
                     </select> */}
                     <p className='text-2xl font-medium'>
-                        <span>Welcome, {user ? user.displayName : "student"}</span>
+                        <span>Welcome, {user ? user.displayName : null}</span>
                     </p>
                 </div>
                 <div className='m-8'>
 
-                    <TeacherRating>
+                    {
+                        user
+                            ? <TeacherRating />
+                            : "no student found"
+                    }
 
-                    </TeacherRating>
 
                 </div>
             </div>

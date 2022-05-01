@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import * as XLSX from 'xlsx'
 import TeacherDetails from '../components/TeacherDetails';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from "firebase/auth";
+import app from '../firebase'
 
 const fetcher = url => fetch(url).then(res => res.json())
 
@@ -13,6 +16,42 @@ export default function upload() {
     const [year, setYear] = useState();
     const [yearString, setYearString] = useState(false);
     let jsonData = [];
+
+    const [adminUser, setAdminUser] = useState(false);
+
+    const router = useRouter()
+    const auth = getAuth(app)
+
+    useEffect(() => {
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // auth.signOut();
+                // () => router.push("/adminLogin")
+                router.push('/studentLogin')
+
+            } else {
+                setAdminUser(auth.currentUser)
+
+                // console.log("Display name -> " + auth.currentUser.displayName)
+                // console.log(adminUser)
+
+                if (auth.currentUser.displayName !== null)
+                    router.push('/studentLogin')
+                // console.log('student found')
+
+                // if (auth.currentUser.displayName === "null") {
+                //   // alert('not for you')
+                // router.push('/studentLogin')
+                //   // auth.signOut()
+                // }
+                // else {
+
+                // }
+
+            }
+        });
+
+    }, [])
 
     const handleFile = async (e) => {
         const file = e.target.files[0];
@@ -25,7 +64,7 @@ export default function upload() {
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-        console.log(JSON.stringify(jsonData))
+        // console.log(JSON.stringify(jsonData))
         // console.log(jsonData[0].Email);
         const structuredData = []
         jsonData.forEach(doc => {
@@ -39,25 +78,25 @@ export default function upload() {
             })
         });
         setFileData(structuredData)
-        console.log(filedata)
+        // console.log(filedata)
 
     }
 
     const sendFileData = () => {
 
-        console.log(filedata)
+        // console.log(filedata)
 
-        if(!year) {
+        if (!year) {
             setYearString(true)
             return
         } else {
-            setYearString(false)            
+            setYearString(false)
         }
         const body = {
             data: filedata,
             year: year
         }
-        
+
         fetch('/api/teacherupload', {
             method: 'POST',
             headers: {
@@ -65,7 +104,7 @@ export default function upload() {
             },
             body: JSON.stringify(body)
         }).then((res) => {
-            console.log(res.json())
+            // console.log(res.json())
         })
     }
 
@@ -75,16 +114,18 @@ export default function upload() {
                 <title>Admin | Upload Teacher Doc</title>
             </Head>
             <div className='w-1/6 h-full shadow-md bg-secondary px-1'>
-                <img src='/main_logo.png' className='h-1/5 w-40 mr-8 ml-11 mt-8 mb-8' ></img>
+                <Link href='/'><img src='/main_logo.png' className='h-1/5 w-40 mr-8 ml-11 mt-8 mb-8' ></img></Link>
                 <div className='h-3/5 flex flex-col content-end gap-4'>
                     <Link href='/upload' ><button className='bg-button text-white mx-8 p-2 rounded'>Create Credentials</button></Link>
-                    <button  className='bg-button text-white mx-8 p-2 rounded'>Log Out</button>
+                    <button onClick={() => {
+                        auth.signOut()
+                    }} className='bg-button text-white mx-8 p-2 rounded'>Log Out</button>
                 </div>
             </div>
             <div className='w-5/6 p-8'>
                 <div className=' flex justify-end'>
-                    <select defaultValue="default" onChange={(e) => setYear(e.target.value) } 
-                    className=" bg-button text-white ease-in-out flex rounded ">
+                    <select defaultValue="default" onChange={(e) => setYear(e.target.value)}
+                        className=" bg-button text-white ease-in-out flex rounded ">
                         <option value='default' selected     >Select Year</option>
                         <option value='first-year' >First year</option>
                         <option value='second-year' >Second Year</option>
@@ -110,7 +151,7 @@ export default function upload() {
                                 {/* </button> */}
                                 {/* <span>{ authState }</span> */}
                             </div>
-                            <div className=''>
+                            <div className='translate-x-full'>
                                 <button onClick={() => setfileuploaded(true)} className='block bg-button text-white rounded px-4 py-2'>Next</button>
                             </div>
                         </div>
@@ -119,7 +160,7 @@ export default function upload() {
                     {fileuploaded &&
                         <div className="bg-secondary px-4">
                             <div className="pt-4">
-                                {filedata && <TeacherDetails isUpload={true} teachersData={filedata}/>}
+                                {filedata && <TeacherDetails isUpload={true} teachersData={filedata} />}
                             </div>
 
                             <div className="flex justify-end">

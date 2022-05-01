@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from "firebase/auth";
 import { getDatabase, ref, child, get } from "firebase/database";
 import { collection, addDoc, getDoc, setDoc, doc } from "firebase/firestore";
 import app, { firestoredb } from '../firebase'
@@ -20,12 +22,49 @@ import TeacherDetails from '../components/TeacherDetails';
 export default function Home() {
   const [year, setYear] = useState();
   const [teachersData, setTeachersData] = useState(false)
+  const [adminUser, setAdminUser] = useState(false);
+
+  const router = useRouter()
+
+  const auth = getAuth(app)
+  useEffect(() => {
+    
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        // auth.signOut();
+        // () => router.push("/adminLogin")
+        router.push('/studentLogin')
+
+      } else {
+        setAdminUser(auth.currentUser)
+
+        // console.log("Display name -> " + auth.currentUser.displayName)
+        // console.log(adminUser)
+
+        if (auth.currentUser.displayName !== null)
+          router.push('/studentLogin')
+        // console.log('student found')
+
+        // if (auth.currentUser.displayName === "null") {
+        //   // alert('not for you')
+        // router.push('/studentLogin')
+        //   // auth.signOut()
+        // }
+        // else {
+
+        // }
+
+      }
+    });
+
+  }, [])
 
   useEffect(() => {
-    if(year) fetch(`/api/teacherlist?year=${year}`).then((res) => res.json()).then((data) => setTeachersData(data))
+    if (year) fetch(`/api/teacherlist?year=${year}`).then((res) => res.json()).then((data) => setTeachersData(data))
   }, [year])
 
-  return (
+
+  if (!!adminUser) return (
     <div className='flex w-screen h-screen'>
       <Head>
         <title>Admin Panel</title>
@@ -35,27 +74,30 @@ export default function Home() {
         <div className='h-3/5 flex flex-col content-end gap-4'>
           <Link href='/upload'><button className='bg-button text-white mx-8 p-2 rounded'>Create Credentials</button></Link>
           <Link href='/teacherUpload'><button className='bg-button text-white mx-8 p-2 rounded'>Add Teachers</button></Link>
-          <button className='bg-button text-white mx-8 p-2 rounded'>Log Out</button>
+          <button onClick={() => {
+            auth.signOut()
+            // router.push('/adminLogin')
+          }} className='bg-button text-white mx-8 p-2 rounded'>Log Out</button>
         </div>
       </div>
       <div className='w-5/6 p-8'>
         <div className=' flex justify-end'>
-        <select defaultValue="default" onChange={(e) => setYear(e.target.value) } 
-                    className=" bg-button text-white ease-in-out flex rounded ">
-                        <option value='default' selected     >Select Year</option>
-                        <option value='first-year' >First year</option>
-                        <option value='second-year' >Second Year</option>
-                        <option value='third-year' >Third Year</option>
-                        <option value='fourth-year' >Fourth Year</option>
-                    </select>
+          <select defaultValue="default" onChange={(e) => setYear(e.target.value)}
+            className=" bg-button text-white ease-in-out flex rounded ">
+            <option value='default' selected     >Select Year</option>
+            <option value='first-year' >First year</option>
+            <option value='second-year' >Second Year</option>
+            <option value='third-year' >Third Year</option>
+            <option value='fourth-year' >Fourth Year</option>
+          </select>
         </div>
-        <div className='m-8'>
-    
-          <div className="bg-secondary">
-            <div className="p-4">
-    
+        <div className=' m-8'>
+
+          <div className=" bg-secondary">
+            <div className=" p-4 flex-row w-full overflow-y-auto overflow-x-auto">
+
               {teachersData && <TeacherDetails teachersData={teachersData} />}
-              
+
               {/* <div className="flex bg-white p-8 space-x-40 my-4 w-full justify-around">
                 <span className="">Teacher Name</span>
                 <button onClick={() => setShowModal(true)} >ratings</button>
